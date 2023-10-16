@@ -1,21 +1,18 @@
-import { Component, HostListener, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ApiService, Contact } from './api.service';
 import { Session } from '@supabase/supabase-js';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
+
+    private subscriptions: Subscription = new Subscription();
 
     session: Session | null = null;
-
-    signInForm: FormGroup = this.form.group({
-        email: [, Validators.email],
-        password: [, Validators.required]    
-    });
 
     searchForm: FormGroup = this.form.group({
         terms: []
@@ -26,24 +23,35 @@ export class AppComponent {
 
     @ViewChild('notificationsTemplate') notificationsTemplateRef?: TemplateRef<any>;
 
-    @HostListener('window:focus') onFocus(): void {
-
-        this.getSession();
-    }
-
     constructor(private readonly api: ApiService,
                 private readonly form: FormBuilder) {
 
-        this.getSession();
+        this.subscriptions.add(
+            this.api.authStateChange.subscribe(({event, session}) => {
 
-        this.api.getContacts().then(contacts => this.contacts = contacts);
+                switch(event) {
+                    case 'PASSWORD_RECOVERY':
+                        const newPassword = prompt("New password ?") as string;
+                        this.api.updateUser({password: newPassword});
+                    break;
+
+                    default:
+                        this.session = session;
+                        break;
+                }
+
+                if(this.session) {
+                    this.api.getContacts().then(contacts => this.contacts = contacts);
+                } else {
+                    delete this.contacts;
+                }
+            })
+        );
 
         this.searchForm.valueChanges.pipe(
             distinctUntilChanged(),
             debounceTime(500),
         ).subscribe(filters => {
-
-
 
             console.log(filters);
 
@@ -69,22 +77,15 @@ export class AppComponent {
         });
     }
 
-    getSession() {
-        this.api.getSession().then(({session}) => this.session = session);
-    }
-
-    signIn() {
-        
-        if(this.signInForm.valid) 
-            this.api.signIn(this.signInForm.value).then(({session}) => this.session = session);
-    }
-
     signOut() {
-
-        this.api.signOut().then(() => this.session = null);
+        this.api.signOut();
     }
 
     trackById(_index: number, item: {id: string}) {
         return item.id;
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 }

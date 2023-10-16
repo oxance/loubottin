@@ -26,11 +26,11 @@
     button, [type=button], [type=reset], [type=submit] {
         
         @apply py-2.5 px-5 font-semibold cursor-pointer rounded-xl transition-all
-                bg-transparent hover:bg-slate-500/40 active:bg-slate-500/20;
+                bg-transparent hover:bg-slate-700 active:bg-slate-800;
 
-        &.button-icon {@apply px-2.5;}
-        &.button-flat {@apply bg-slate-500/20 hover:bg-slate-500/40 active:bg-slate-500/20;}
-        &.button-warn {@apply text-red-400 hover:bg-red-500/40 hover:text-red-100 active:bg-red-500/20;}
+        &.button-icon {@apply px-2.5 rounded-full;}
+        &.button-flat {@apply bg-slate-800 hover:bg-slate-700 active:bg-slate-800;}
+        &.button-warn {@apply text-red-400 hover:bg-red-500 hover:text-white active:bg-red-600;}
     }
 
     [type=text], [type=search], [type=email], [type=password] {

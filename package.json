@@ -17,7 +17,6 @@
     "@angular/forms": "^16.2.0",
     "@angular/platform-browser": "^16.2.0",
     "@angular/platform-browser-dynamic": "^16.2.0",
-    "@angular/router": "^16.2.0",
     "@ng-icons/core": "^25.3.1",
     "@ng-icons/feather-icons": "^25.3.1",
     "@supabase/supabase-js": "^2.38.0",

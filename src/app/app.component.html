@@ -1,34 +1,21 @@
 <ng-template #signInTemplate>
-    <section class="w-full h-full pt-16 flex flex-col items-center justify-center">
-        <img src="assets/logo.png" loading="lazy" class="w-60 rounded-full" />
-        <h1 class="mt-8 text-loubottin-400">Loup Bottin</h1>
-        <div class="mt-12 flex flex-col">
-            <h2 class="mb-6">Connectez-vous à votre compte</h2>
-            <form [formGroup]="signInForm" (ngSubmit)="signIn()" class="flex flex-col items-start gap-6">
-                <input type="email" formControlName="email" placeholder="Adresse email" class="w-full" />
-                <input type="password" formControlName="password" placeholder="Mot de passe" class="w-full" />
-                <button type="submit" class="button-flat place-self-center">
-                    Connection <ng-icon name="featherChevronRight"></ng-icon>
-                </button>
-            </form>
-        </div>
-    </section>
+    <app-signin></app-signin>
 </ng-template>
 
-<section *ngIf="session; else signInTemplate">
+<ng-container *ngIf="session; else signInTemplate">
 
-    <div class="w-full max-w-screen-xl mx-auto mt-8 flex items-center justify-between">
+    <div class="w-full max-w-screen-xl px-8 mx-auto mt-8 flex items-center justify-between">
         <h1 class="text-loubottin-400">Loup Bottin</h1>
-        <button class="button-warn" (click)="signOut()">
+        <button class="button-warn" (click)="signOut()" *ngIf="session">
             Sign Out
             <ng-icon name="featherLogOut"></ng-icon>
         </button>
     </div>
-
-    <div [formGroup]="searchForm" class="w-full max-w-screen-xl mx-auto my-24 flex flex-col sticky top-2">
+    
+    <div [formGroup]="searchForm" class="w-full max-w-screen-xl px-8 mx-auto my-24 flex flex-col sticky -top-1 pt-9 pb-2 bg-slate-900/50 backdrop-blur-xl">
         <div class="relative">
             <input type="text" placeholder="Rechercher" formControlName="terms" (ngModelChange)="searchForm.updateValueAndValidity()" 
-                class="pl-12 w-full shadow-lg peer" />
+                class="pl-12 w-full rounded-full shadow-lg peer" />
             <ng-icon name="featherSearch" class="absolute left-3 top-3 text-slate-500 peer-focus:text-loubottin-500"></ng-icon>
             <button class="button-icon absolute top-1 right-1 py-1.5" *ngIf="searchForm.get('terms')?.value" (click)="searchForm.get('terms')?.reset()">
                 <ng-icon name="featherX"></ng-icon>
@@ -38,8 +25,8 @@
             Appuyez sur <span class="text-white bg-slate-700 px-1.5 rounded-md text-base">⏎</span> pour lancer la recheche
         </small>
     </div>
-
-    <div class="w-full max-w-screen-xl mx-auto my-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    
+    <div class="w-full max-w-screen-xl px-8 mx-auto my-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <div *ngFor="let item of contacts; trackBy: trackById" class="contact"
             (click)="currentContact = item" [ngClass]="{active: currentContact?.id === item.id}">
             <div class="text-xl mb-4 contact-title">{{item.name}}</div>
@@ -57,4 +44,4 @@
             </div>
         </div>
     </div>
-</section>
+</ng-container>
