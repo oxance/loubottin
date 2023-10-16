@@ -13,9 +13,6 @@ MIT
 @angular/platform-browser
 MIT
 
-@angular/router
-MIT
-
 @ng-icons/core
 MIT
 
