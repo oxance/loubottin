@@ -22,7 +22,10 @@
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
+    "allowSyntheticDefaultImports": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

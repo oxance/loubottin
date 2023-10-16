@@ -1,1 +1,53 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+    html { font-size: 14px; }
+
+    body { @apply text-white bg-slate-900; }
+
+    h1 { @apply text-4xl font-light; }
+    h2 { @apply text-xl; }
+}
+
+@layer components {
+
+    // .panel {
+    //     @apply relative px-12 py-8 rounded-br-2xl bg-slate-900
+    //             before:absolute before:-bottom-[1px] before:-right-[1px] before:w-full before:h-full before:rounded-2xl before:-z-10 
+    //             before:bg-gradient-to-tl before:from-loubottin-300 before:via-transparent before:to-transparent
+    //             after:absolute after:bottom-0 after:right-0 after:w-4/5 after:h-4/5 after:rounded-2xl after:-z-10
+    //             after:bg-gradient-to-br after:from-transparent after:via-transparent after:to-loubottin-300 after:blur-xl;
+    // }
+
+    button, [type=button], [type=reset], [type=submit] {
+        
+        @apply py-2.5 px-5 font-semibold cursor-pointer rounded-xl transition-all
+                bg-transparent hover:bg-slate-500/40 active:bg-slate-500/20;
+
+        &.button-icon {@apply px-2.5;}
+        &.button-flat {@apply bg-slate-500/20 hover:bg-slate-500/40 active:bg-slate-500/20;}
+        &.button-warn {@apply text-red-400 hover:bg-red-500/40 hover:text-red-100 active:bg-red-500/20;}
+    }
+
+    [type=text], [type=search], [type=email], [type=password] {
+        @apply py-2.5 px-5 rounded-xl bg-slate-800 transition-all outline outline-1 outline-slate-700 shadow-slate-950
+                focus:outline-2 focus:outline-loubottin-500 focus:shadow-loubottin-950;
+    }
+
+    ng-icon {
+        @apply text-xl leading-none align-sub last:ml-1 first:mr-1;
+    }
+
+    .contact {
+        @apply flex flex-col items-start py-4 px-8 rounded-2xl bg-slate-800 transition-all;
+
+        &:not(.active) {
+            @apply hover:bg-slate-700 cursor-pointer select-none;
+        }
+    }
+}
+
