@@ -8,40 +8,89 @@
         <h1 class="text-loubottin-400">Loup Bottin</h1>
         <button class="button-warn" (click)="signOut()" *ngIf="session">
             Sign Out
-            <ng-icon name="featherLogOut"></ng-icon>
+            <lucide-icon name="log-out"></lucide-icon>
         </button>
     </div>
     
-    <div [formGroup]="searchForm" class="w-full max-w-screen-xl px-8 mx-auto my-24 flex flex-col sticky -top-1 pt-9 pb-2 bg-slate-900/50 backdrop-blur-xl">
-        <div class="relative">
-            <input type="text" placeholder="Rechercher" formControlName="terms" (ngModelChange)="searchForm.updateValueAndValidity()" 
-                class="pl-12 w-full rounded-full shadow-lg peer" />
-            <ng-icon name="featherSearch" class="absolute left-3 top-3 text-slate-500 peer-focus:text-loubottin-500"></ng-icon>
-            <button class="button-icon absolute top-1 right-1 py-1.5" *ngIf="searchForm.get('terms')?.value" (click)="searchForm.get('terms')?.reset()">
-                <ng-icon name="featherX"></ng-icon>
-            </button>
+    <div [formGroup]="searchForm" class="w-full my-24 sticky -top-1 pt-9 pb-8 z-50 bg-slate-900/75 backdrop-blur-xl">
+        <div class="max-w-screen-xl flex flex-col mx-auto px-8">
+            <div class="relative">
+                <input type="text" placeholder="Rechercher" formControlName="terms" (ngModelChange)="searchForm.updateValueAndValidity()" 
+                        class="px-12 w-full rounded-full shadow-lg peer" />
+                <lucide-icon name="search" ngClass="absolute h-full left-4 text-slate-500 peer-focus:text-loubottin-500"></lucide-icon>
+                <button class="absolute right-0.5 top-0.5 button-icon" *ngIf="searchForm.get('terms')?.value" (click)="searchForm.get('terms')?.reset()">
+                    <lucide-icon name="x"></lucide-icon>
+                </button>
+            </div>
+            <small class="text-slate-500 place-self-end mt-2">
+                Appuyez sur <span class="text-white bg-slate-700 px-1.5 rounded-md text-base">⏎</span> pour lancer la recheche
+            </small>
+            <div class="flex flex-row flex-wrap items-center gap-4 mt-4">
+                <span class="text-slate-400">Tags</span>
+                <button *ngFor="let tag of tags | keyvalue" class="button-flat button-filter" [ngClass]="{
+                    'active': searchForm.get('tags')?.value?.includes($any(tag.key))
+                }" (click)="toggleTagsFilter($any(tag.key))">
+                    <lucide-icon [name]="searchForm.get('tags')?.value?.includes($any(tag.key)) ? 'check-square' : tag.value.icon"></lucide-icon>
+                    {{tag.key}}
+                </button>
+            </div>
         </div>
-        <small class="text-slate-500 mt-2 place-self-end">
-            Appuyez sur <span class="text-white bg-slate-700 px-1.5 rounded-md text-base">⏎</span> pour lancer la recheche
-        </small>
     </div>
     
     <div class="w-full max-w-screen-xl px-8 mx-auto my-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        <div *ngFor="let item of contacts; trackBy: trackById" class="contact"
-            (click)="currentContact = item" [ngClass]="{active: currentContact?.id === item.id}">
-            <div class="text-xl mb-4 contact-title">{{item.name}}</div>
-            <div class="flex items-start gap-1">
-                <ng-icon name="featherMapPin" class="text-slate-500"></ng-icon>
-                <div [ngClass]="{'text-slate-400': currentContact?.id !== item.id}">{{item.address}}</div>
+        <div *ngFor="let item of contacts; trackBy: trackById" class="contact">
+            <div class="flex items-start gap-2">
+                <lucide-icon *ngFor="let tag of item.tags" [name]="tags ? tags[tag].icon : ''" [ngClass]="{
+                    'text-loubottin-400': tag === 'salarié',
+                    'text-pink-400': tag === 'établissement'
+                }"></lucide-icon>
+                <div class="text-xl mb-2">{{item.name}}</div>
             </div>
-            <div class="flex items-start gap-1" *ngIf="item.mobile">
-                <ng-icon class="text-slate-500" name="featherSmartphone"></ng-icon>
-                <div [ngClass]="{'text-slate-400': currentContact?.id !== item.id}">{{item.mobile}}</div>
+            <div class="flex items-start gap-2" *ngIf="item.address">
+                <lucide-icon name="map-pin" ngClass="text-slate-500"></lucide-icon>
+                <div class="text-slate-400">{{item.address}}</div>
             </div>
-            <div class="flex items-start gap-1" *ngIf="item.phone">
-                <ng-icon class="text-slate-500" name="featherPhone"></ng-icon>
-                <div [ngClass]="{'text-slate-400': currentContact?.id !== item.id}">{{item.phone}}</div>
+            <div class="flex items-start gap-2" *ngIf="item.mobile">
+                <lucide-icon name="smartphone" ngClass="text-slate-500" ></lucide-icon>
+                <div class="text-slate-400">{{item.mobile}}</div>
             </div>
+            <div class="flex items-start gap-2" *ngIf="item.phone">
+                <lucide-icon name="phone" ngClass="text-slate-500" ></lucide-icon>
+                <div class="text-slate-400">{{item.phone}}</div>
+            </div>
+            <div class="flex-1"></div>
         </div>
     </div>
 </ng-container>
+
+<div class="fixed w-full max-w-md bottom-0 left-1/2 -translate-x-1/2">
+    <div *ngFor="let notification of notifications; let index = index; trackBy: trackById" class="overflow-visible mb-4" @notification>
+        <div class="relative px-8 py-4 flex flex-row items-stretch gap-4 rounded-2xl outline outline-1 shadow-xl shadow-slate-950 backdrop-blur-xl" 
+            [ngClass]="{
+                'outline-slate-700 bg-slate-800/75': notification.state !== 'warn' && notification.state !== 'success',
+                'text-loubottin-100 bg-loubottin-950/75 outline-loubottin-500': notification.state === 'success',
+                'text-red-100 bg-red-950/75 outline-red-500': notification.state === 'warn'
+            }"
+            [ngStyle]="{zIndex: 100 + index}">
+            <div *ngIf="notification.icon || notification.state" class="max-h-12 flex items-center flex-none">
+                <lucide-icon [name]="notification.icon ?? (
+                    notification.state === 'pending' ? 'loader' : (
+                    notification.state === 'success' ? 'check' : (
+                    notification.state === 'warn' ? 'alert-triangle' : '')))" [ngClass]="{
+
+                    'text-slate-500 animate-spin': notification.state === 'pending',
+                    'text-loubottin-500': notification.state === 'success',
+                    'text-red-500': notification.state === 'warn'
+                }"></lucide-icon>
+            </div>
+            <div>
+                {{notification.message}}
+            </div>
+            <div  class="max-h-12 flex items-center flex-none -mr-4">
+                <button *ngIf="notification.state !== 'pending'" class="button-icon" (click)="notification.close()">
+                    <lucide-icon name="x"></lucide-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

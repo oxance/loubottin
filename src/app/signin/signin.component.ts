@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../api.service';
+import { finalize } from 'rxjs';
+import { State } from '../api.service';
 
 @Component({
   selector: 'app-signin',
@@ -13,12 +15,15 @@ export class SigninComponent {
         password: [, Validators.required]    
     });
 
+    state: State = {pending: false};
+
     constructor(private readonly api: ApiService,
                 private readonly form: FormBuilder) {}
 
     signIn() {
-        
-        if(this.signInForm.valid) 
-            this.api.signIn(this.signInForm.value);
+        if(this.signInForm.valid) {
+            this.state.pending = true;
+            this.api.signIn(this.signInForm.value).pipe(finalize(() => this.state.pending = false));
+        }
     }
 }

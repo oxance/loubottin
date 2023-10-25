@@ -1,30 +1,44 @@
-import { Component, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { ApiService, Contact } from './api.service';
+import { Component, ElementRef, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { ApiService, Contact, SearchFormControls, TagName, Tags } from './api.service';
 import { Session } from '@supabase/supabase-js';
-import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged, finalize, mergeMap } from 'rxjs';
+import { NotificationService, Notifications, notificationAnimations } from './notification.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html'
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    animations: notificationAnimations
 })
 export class AppComponent implements OnDestroy {
 
     private subscriptions: Subscription = new Subscription();
 
+    notifications?: Notifications;
+
     session: Session | null = null;
 
-    searchForm: FormGroup = this.form.group({
-        terms: []
-    });
+    searchForm: FormGroup<SearchFormControls> = new FormGroup({
+        terms: new FormControl<string>(''),
+        tags: new FormControl<TagName[]>([])
+    } as SearchFormControls);
 
+    tags?: Tags;
     contacts?: Contact[];
-    currentContact?: Partial<Contact>;
 
     @ViewChild('notificationsTemplate') notificationsTemplateRef?: TemplateRef<any>;
 
     constructor(private readonly api: ApiService,
-                private readonly form: FormBuilder) {
+                private readonly notification: NotificationService, 
+                private readonly elementRef: ElementRef<HTMLElement>) {
+
+        this.tags = this.api.tags;
+
+        this.subscriptions.add(
+            this.notification.onNotificationsChange.subscribe(notifications =>
+                this.notifications = notifications    
+            )
+        );
 
         this.subscriptions.add(
             this.api.authStateChange.subscribe(({event, session}) => {
@@ -40,41 +54,21 @@ export class AppComponent implements OnDestroy {
                         break;
                 }
 
-                if(this.session) {
-                    this.api.getContacts().then(contacts => this.contacts = contacts);
-                } else {
-                    delete this.contacts;
-                }
+                if(this.session)
+                    this.searchForm.reset({}, {emitEvent: true});
             })
         );
 
-        this.searchForm.valueChanges.pipe(
-            distinctUntilChanged(),
-            debounceTime(500),
-        ).subscribe(filters => {
-
-            console.log(filters);
-
-            this.api.getContacts().then(contacts => 
-                this.contacts = contacts.filter(item => {
-
-                    let a = true;
-
-                    if(filters.terms) {
-                        const termsSearch = new RegExp(filters.terms, 'i');
-
-                        a = a && (
-                            termsSearch.test((item.name ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '')) ||
-                            termsSearch.test((item.address ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '')) ||
-                            termsSearch.test((item.mobile ?? '').replace(' ', '')) ||
-                            termsSearch.test((item.phone ?? '').replace(' ', ''))
-                        );
-                    }
-
-                    return a;
+        this.subscriptions.add(
+            this.searchForm.valueChanges.pipe(
+                distinctUntilChanged(),
+                debounceTime(500),
+                mergeMap(filters => {
+                    const notificationRef = this.notification.open({message: 'search', state: 'pending'});
+                    return this.api.getContacts(filters).pipe(finalize(() => notificationRef.close()))
                 })
-            );
-        });
+            ).subscribe(contacts => this.revealContacts(contacts))
+        );
     }
 
     signOut() {
@@ -83,6 +77,34 @@ export class AppComponent implements OnDestroy {
 
     trackById(_index: number, item: {id: string}) {
         return item.id;
+    }
+
+    revealContacts(contacts: Contact[]) {
+        this.contacts = contacts;
+
+        setTimeout(() => {
+            this.elementRef.nativeElement.querySelectorAll<HTMLElement>('.contact.invisible').forEach((e, i) => {
+
+                if(e.offsetTop <= window.innerHeight)
+                    setTimeout(() => {
+                        e.classList.remove('invisible')
+                    }, 50 * i);
+                else
+                    e.classList.remove('scale-in', 'invisible');
+            });
+        }, 100);
+    }
+
+    toggleTagsFilter(tag: TagName) {
+
+        const activeTags: TagName[] = this.searchForm.get('tags')?.value ?? [];
+
+        if(activeTags.includes(tag))
+            activeTags.splice(activeTags.indexOf(tag), 1);
+        else
+            activeTags.push(tag);
+
+        this.searchForm.get('tags')?.setValue(activeTags);
     }
 
     ngOnDestroy(): void {

@@ -6,8 +6,10 @@
         <form [formGroup]="signInForm" (ngSubmit)="signIn()" class="flex flex-col items-start gap-6">
             <input type="email" formControlName="email" placeholder="Adresse email" class="w-full" />
             <input type="password" formControlName="password" placeholder="Mot de passe" class="w-full" />
-            <button type="submit" class="button-flat place-self-center">
-                Connection <ng-icon name="featherChevronRight"></ng-icon>
+            <button type="submit" class="button-flat place-self-center" [ngClass]="{pending: state.pending}">
+                <lucide-icon name="loader" ngClass="animate-spin"></lucide-icon>
+                Connection
+                <lucide-icon name="chevron-right"></lucide-icon>
             </button>
         </form>
     </div>

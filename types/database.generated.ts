@@ -20,6 +20,7 @@ export interface Database {
           phone: string | null
           tags: string[] | null
           updated_by: string | null
+          full_text: string | null
         }
         Insert: {
           address?: string | null
@@ -52,33 +53,29 @@ export interface Database {
           }
         ]
       }
-      tags: {
-        Row: {
-          color: string | null
-          created_at: string
-          icon: string | null
-          name: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string
-          icon?: string | null
-          name: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string
-          icon?: string | null
-          name?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      full_text: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      unaccent: {
+        Args: {
+          "": string
+        }
+        Returns: string
+      }
+      unaccent_init: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
     }
     Enums: {
       [_ in never]: never

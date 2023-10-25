@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build --base-href /loubottin/",
     "watch": "ng build --watch --configuration development",
-    "build:db": "supabase gen types typescript --project-id deyxnszwkjaayzlwdefu --schema public > types/supabase.ts"
+    "build:db": "supabase gen types typescript --project-id deyxnszwkjaayzlwdefu --schema public > types/database.generated.ts"
   },
   "private": true,
   "dependencies": {
@@ -17,9 +17,8 @@
     "@angular/forms": "^16.2.0",
     "@angular/platform-browser": "^16.2.0",
     "@angular/platform-browser-dynamic": "^16.2.0",
-    "@ng-icons/core": "^25.3.1",
-    "@ng-icons/feather-icons": "^25.3.1",
     "@supabase/supabase-js": "^2.38.0",
+    "lucide-angular": "^0.288.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
@@ -32,13 +31,14 @@
     "@types/ldapjs": "^3.0.2",
     "@types/node": "^20.8.4",
     "autoprefixer": "^10.4.16",
-    "ldapjs": "^3.0.5",
+    "axios": "^1.5.1",
     "listr2": "^7.0.1",
     "mssql": "^9.3.2",
     "postcss": "^8.4.31",
     "supabase": "^1.100.1",
     "tailwindcss": "^3.3.3",
     "ts-node": "^10.9.1",
+    "type-fest": "^4.5.0",
     "typeorm": "^0.3.17",
     "typescript": "~5.1.3"
   }

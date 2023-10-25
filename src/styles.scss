@@ -5,7 +5,13 @@
 
 @layer base {
 
-    html { font-size: 14px; }
+    html { 
+        font-size: 14px;
+    
+        &.sr .reveal-fade-up {
+            visibility: hidden;
+        }
+    }
 
     body { @apply text-white bg-slate-900; }
 
@@ -15,39 +21,61 @@
 
 @layer components {
 
-    // .panel {
-    //     @apply relative px-12 py-8 rounded-br-2xl bg-slate-900
-    //             before:absolute before:-bottom-[1px] before:-right-[1px] before:w-full before:h-full before:rounded-2xl before:-z-10 
-    //             before:bg-gradient-to-tl before:from-loubottin-300 before:via-transparent before:to-transparent
-    //             after:absolute after:bottom-0 after:right-0 after:w-4/5 after:h-4/5 after:rounded-2xl after:-z-10
-    //             after:bg-gradient-to-br after:from-transparent after:via-transparent after:to-loubottin-300 after:blur-xl;
-    // }
-
     button, [type=button], [type=reset], [type=submit] {
         
-        @apply py-2.5 px-5 font-semibold cursor-pointer rounded-xl transition-all
+        @apply py-2.5 px-5 font-semibold rounded-xl cursor-pointer transition-all text-white select-none
                 bg-transparent hover:bg-slate-700 active:bg-slate-800;
 
-        &.button-icon {@apply px-2.5 rounded-full;}
+        lucide-icon {
+            @apply first:mr-1 last:ml-1 ease-in duration-150;
+            transition-property: width, margin;
+        }
+
+        &.button-icon {@apply p-0 w-10 h-10 text-center rounded-full flex-none;}
         &.button-flat {@apply bg-slate-800 hover:bg-slate-700 active:bg-slate-800;}
         &.button-warn {@apply text-red-400 hover:bg-red-500 hover:text-white active:bg-red-600;}
+
+        &.button-filter {
+            &.active {
+                @apply bg-loubottin-500 shadow-lg shadow-loubottin-950;
+            }
+        }
+
+        &.pending {
+            @apply cursor-default pointer-events-none text-opacity-25;
+
+            lucide-icon:not([name=loader]){@apply w-0 m-0;}
+            lucide-icon[name=loader] {@apply w-6;}
+        }
+
+        &:not(.pending) lucide-icon[name=loader] { @apply w-0 m-0; }
     }
 
     [type=text], [type=search], [type=email], [type=password] {
         @apply py-2.5 px-5 rounded-xl bg-slate-800 transition-all outline outline-1 outline-slate-700 shadow-slate-950
-                focus:outline-2 focus:outline-loubottin-500 focus:shadow-loubottin-950;
+                focus:outline-2 focus:outline-loubottin-500 focus:shadow-loubottin-950 focus:caret-loubottin-500;
     }
 
-    ng-icon {
-        @apply text-xl leading-none align-sub last:ml-1 first:mr-1;
+    lucide-icon {
+        @apply inline-block w-6 h-6 flex-none align-top;
+
+        svg {
+            @apply block w-full h-full m-0;
+        }
+    }
+
+    .tag {
+        @apply relative px-2 rounded-full overflow-hidden text-slate-300;
+
+        lucide-icon svg {@apply stroke-1;}
     }
 
     .contact {
-        @apply flex flex-col items-start py-4 px-8 rounded-2xl bg-slate-800 transition-all;
-
-        &:not(.active) {
-            @apply hover:bg-slate-700 cursor-pointer select-none;
-        }
+        @apply flex flex-col gap-2 items-start py-4 px-8 rounded-2xl shadow-2xl bg-slate-800 transition-all;
     }
 }
 
+@layer utilities {
+
+    
+}

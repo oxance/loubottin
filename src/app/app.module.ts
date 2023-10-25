@@ -3,10 +3,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule  }   from '@angular/forms';
 import { AppComponent } from './app.component';
-import { NgIconsModule } from '@ng-icons/core';
-import { featherChevronRight, featherBell, featherCheck, featherX, featherLogOut, featherSearch, featherPhone,
-         featherSmartphone, featherMapPin } from '@ng-icons/feather-icons';
 import { SigninComponent } from './signin/signin.component';
+import { 
+    LucideAngularModule, ChevronRight, LogOut, Search, X, Building, UserCheck2, CheckSquare, MapPin, Smartphone, Phone, Loader, AlertTriangle, Check
+} from 'lucide-angular';
 
 @NgModule({
   declarations: [
@@ -18,8 +18,9 @@ import { SigninComponent } from './signin/signin.component';
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    NgIconsModule.withIcons({featherChevronRight, featherBell, featherCheck, featherX, featherLogOut, featherSearch, featherPhone,
-        featherSmartphone, featherMapPin})
+    LucideAngularModule.pick({
+        ChevronRight, LogOut, Search, X, Building, UserCheck2, CheckSquare, MapPin, Smartphone, Phone, Loader, AlertTriangle, Check
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
