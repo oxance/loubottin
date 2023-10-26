@@ -71,6 +71,21 @@
     }
 
     .contact {
-        @apply flex flex-col gap-2 items-start py-4 px-8 rounded-2xl bg-slate-800 transition-all;
+        @apply flex flex-col gap-2 items-start py-4 px-8 rounded-xl transition-all
+            outline outline-[14px] outline-slate-900;
     }
+}
+
+@layer utilities {
+
+    .animate-bg {
+        @apply bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-no-repeat;
+
+        animation: bg-animation 1s infinite linear forwards;
+    }
+}
+
+@keyframes bg-animation {
+    from{background-position: -100vw 0;}
+    to{background-position: 100vw 0;}
 }

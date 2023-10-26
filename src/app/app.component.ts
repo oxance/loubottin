@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ApiService, Contact, SearchFormControls, TagName, Tags } from './api.service';
+import { ApiService, Contact, SearchFormControls, State, TagName, Tags } from './api.service';
 import { Session } from '@supabase/supabase-js';
 import { Subscription, debounceTime, distinctUntilChanged, mergeMap, tap } from 'rxjs';
 import { NotificationService, Notifications, notificationAnimations } from './notification.service';
@@ -28,9 +28,10 @@ export class AppComponent implements OnDestroy {
     tags?: Tags;
     contacts?: Contact[];
 
+    state: State = {pending: false};
+
     constructor(private readonly api: ApiService,
-                private readonly notification: NotificationService,
-                private readonly elementRef: ElementRef<HTMLElement>) {
+                private readonly notification: NotificationService) {
 
         this.tags = this.api.tags;
 
@@ -67,7 +68,7 @@ export class AppComponent implements OnDestroy {
             this.searchForm.valueChanges.pipe(
                 distinctUntilChanged(),
                 debounceTime(500),
-                tap(() => { delete this.contacts}),
+                tap(() => this.state.pending = true),
                 mergeMap(filters => this.api.getContacts(filters))
             ).subscribe(contacts => this.revealContacts(contacts))
         );
@@ -83,18 +84,7 @@ export class AppComponent implements OnDestroy {
 
     revealContacts(contacts: Contact[]) {
         this.contacts = contacts;
-
-        setTimeout(() => {
-            this.elementRef.nativeElement.querySelectorAll<HTMLElement>('.contact.invisible').forEach((e, i) => {
-
-                if(e.offsetTop <= window.innerHeight)
-                    setTimeout(() => {
-                        e.classList.remove('invisible')
-                    }, 50 * i);
-                else
-                    e.classList.remove('scale-in', 'invisible');
-            });
-        }, 100);
+        this.state.pending = false;
     }
 
     toggleTagsFilter(tag: TagName) {

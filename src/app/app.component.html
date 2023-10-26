@@ -41,35 +41,34 @@
                 </div>
             </div>
             
-            <div class="w-full max-w-screen-xl px-8 mx-auto my-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <div *ngIf="!contacts" class="contact flex flex-row gap-2 md:col-span-2 lg:col-span-3 xl:col-span-4">
-                    <lucide-icon name="loader" ngClass="animate-spin"></lucide-icon>
-                    Recherche des contacts
-                </div>
-                <div *ngIf="contacts?.length === 0" class="contact  md:col-span-2 lg:col-span-3 xl:col-span-4">
-                    Aucun résultat
-                </div>
-                <div *ngFor="let item of contacts; trackBy: trackById" class="contact">
-                    <div class="flex items-start gap-2">
-                        <lucide-icon *ngFor="let tag of item.tags" [name]="tags ? tags[tag].icon : ''" [ngClass]="{
-                            'text-loubottin-400': tag === 'salarié',
-                            'text-pink-400': tag === 'établissement'
-                        }"></lucide-icon>
-                        <div class="text-xl mb-2">{{item.name}}</div>
+            <div class="w-full max-w-screen-xl mx-auto my-8">
+                <div class="mx-8 rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 bg-slate-800"
+                    [ngClass]="{'animate-bg': state.pending}">
+                    <div *ngIf="contacts?.length === 0" class="contact md:col-span-2 lg:col-span-3 xl:col-span-4">
+                        Aucun résultat
                     </div>
-                    <div class="flex items-start gap-2" *ngIf="item.address">
-                        <lucide-icon name="map-pin" ngClass="text-slate-500"></lucide-icon>
-                        <div class="text-slate-400">{{item.address}}</div>
+                    <div *ngFor="let item of contacts; trackBy: trackById" class="contact">
+                        <div class="flex items-start gap-2">
+                            <lucide-icon *ngFor="let tag of item.tags" [name]="tags ? tags[tag].icon : ''" [ngClass]="{
+                                'text-loubottin-400': tag === 'salarié',
+                                'text-pink-400': tag === 'établissement'
+                            }"></lucide-icon>
+                            <div class="text-xl mb-2">{{item.name}}</div>
+                        </div>
+                        <div class="flex items-start gap-2" *ngIf="item.address">
+                            <lucide-icon name="map-pin" ngClass="text-slate-500"></lucide-icon>
+                            <div class="text-slate-400">{{item.address}}</div>
+                        </div>
+                        <div class="flex items-start gap-2" *ngIf="item.mobile">
+                            <lucide-icon name="smartphone" ngClass="text-slate-500" ></lucide-icon>
+                            <div class="text-slate-400">{{item.mobile}}</div>
+                        </div>
+                        <div class="flex items-start gap-2" *ngIf="item.phone">
+                            <lucide-icon name="phone" ngClass="text-slate-500" ></lucide-icon>
+                            <div class="text-slate-400">{{item.phone}}</div>
+                        </div>
+                        <div class="flex-1"></div>
                     </div>
-                    <div class="flex items-start gap-2" *ngIf="item.mobile">
-                        <lucide-icon name="smartphone" ngClass="text-slate-500" ></lucide-icon>
-                        <div class="text-slate-400">{{item.mobile}}</div>
-                    </div>
-                    <div class="flex items-start gap-2" *ngIf="item.phone">
-                        <lucide-icon name="phone" ngClass="text-slate-500" ></lucide-icon>
-                        <div class="text-slate-400">{{item.phone}}</div>
-                    </div>
-                    <div class="flex-1"></div>
                 </div>
             </div>
         </ng-container>
