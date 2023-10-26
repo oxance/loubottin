@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../api.service';
-import { finalize } from 'rxjs';
 import { State } from '../api.service';
 
 @Component({
@@ -23,7 +22,7 @@ export class SigninComponent {
     signIn() {
         if(this.signInForm.valid) {
             this.state.pending = true;
-            this.api.signIn(this.signInForm.value).pipe(finalize(() => this.state.pending = false));
+            this.api.signIn(this.signInForm.value).subscribe(() => this.state.pending = false);
         }
     }
 }

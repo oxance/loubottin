@@ -71,11 +71,6 @@
     }
 
     .contact {
-        @apply flex flex-col gap-2 items-start py-4 px-8 rounded-2xl shadow-2xl bg-slate-800 transition-all;
+        @apply flex flex-col gap-2 items-start py-4 px-8 rounded-2xl bg-slate-800 transition-all;
     }
-}
-
-@layer utilities {
-
-    
 }

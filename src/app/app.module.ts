@@ -7,11 +7,13 @@ import { SigninComponent } from './signin/signin.component';
 import { 
     LucideAngularModule, ChevronRight, LogOut, Search, X, Building, UserCheck2, CheckSquare, MapPin, Smartphone, Phone, Loader, AlertTriangle, Check
 } from 'lucide-angular';
+import { UpdatePasswordComponent } from './update-password/update-password.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SigninComponent
+    SigninComponent,
+    UpdatePasswordComponent
   ],
   imports: [
     BrowserModule,

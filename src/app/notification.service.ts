@@ -7,6 +7,7 @@ export type Notification = {
     message: string
     icon?: string
     state?: 'pending' | 'success' | 'warn'
+    during?: number
 }
 
 export class NotificationRef implements Notification {
@@ -29,6 +30,9 @@ export class NotificationRef implements Notification {
         
         if(notification.state)
             this.state = notification.state;
+
+        if(notification.during)
+            setTimeout(() => this.close(), notification.during);
 
         return this;
     }

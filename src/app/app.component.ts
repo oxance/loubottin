@@ -1,8 +1,8 @@
-import { Component, ElementRef, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ApiService, Contact, SearchFormControls, TagName, Tags } from './api.service';
 import { Session } from '@supabase/supabase-js';
-import { Subscription, debounceTime, distinctUntilChanged, finalize, mergeMap } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged, mergeMap, tap } from 'rxjs';
 import { NotificationService, Notifications, notificationAnimations } from './notification.service';
 
 @Component({
@@ -13,6 +13,8 @@ import { NotificationService, Notifications, notificationAnimations } from './no
 export class AppComponent implements OnDestroy {
 
     private subscriptions: Subscription = new Subscription();
+
+    page?: 'updatePassword'; 
 
     notifications?: Notifications;
 
@@ -26,10 +28,8 @@ export class AppComponent implements OnDestroy {
     tags?: Tags;
     contacts?: Contact[];
 
-    @ViewChild('notificationsTemplate') notificationsTemplateRef?: TemplateRef<any>;
-
     constructor(private readonly api: ApiService,
-                private readonly notification: NotificationService, 
+                private readonly notification: NotificationService,
                 private readonly elementRef: ElementRef<HTMLElement>) {
 
         this.tags = this.api.tags;
@@ -43,19 +43,23 @@ export class AppComponent implements OnDestroy {
         this.subscriptions.add(
             this.api.authStateChange.subscribe(({event, session}) => {
 
+                this.session = session;
+
                 switch(event) {
+
                     case 'PASSWORD_RECOVERY':
-                        const newPassword = prompt("New password ?") as string;
-                        this.api.updateUser({password: newPassword});
+                        this.page = 'updatePassword';
                     break;
 
-                    default:
-                        this.session = session;
+                    case 'USER_UPDATED':
+                        if(this.page === 'updatePassword')
+                            delete this.page;
+                    break;
+
+                    case 'SIGNED_IN':
+                        this.searchForm.reset({}, {emitEvent: true});
                         break;
                 }
-
-                if(this.session)
-                    this.searchForm.reset({}, {emitEvent: true});
             })
         );
 
@@ -63,10 +67,8 @@ export class AppComponent implements OnDestroy {
             this.searchForm.valueChanges.pipe(
                 distinctUntilChanged(),
                 debounceTime(500),
-                mergeMap(filters => {
-                    const notificationRef = this.notification.open({message: 'search', state: 'pending'});
-                    return this.api.getContacts(filters).pipe(finalize(() => notificationRef.close()))
-                })
+                tap(() => { delete this.contacts}),
+                mergeMap(filters => this.api.getContacts(filters))
             ).subscribe(contacts => this.revealContacts(contacts))
         );
     }
