@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { ApiService, State } from '../api.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NotificationService } from '../notification.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Notification } from '../notification/notification.module';
 
 @Component({
   selector: 'app-update-password',
@@ -9,25 +10,28 @@ import { NotificationService } from '../notification.service';
 })
 export class UpdatePasswordComponent {
 
-    updatePasswordForm: FormGroup = this.form.group({
-        password: [, Validators.required]    
+    updateForm: FormGroup = this.form.group({
+        password: []    
     });
 
     state: State = {pending: false};
 
-    constructor(private readonly api: ApiService,
+    constructor(private readonly router: Router,
+                private readonly api: ApiService,
                 private readonly form: FormBuilder,
-                private readonly notification: NotificationService) {}
+                private readonly notification: Notification) {}
 
-    updatePassword() {
-        if(this.updatePasswordForm.valid) {
+    submit() {
+        if(this.updateForm.valid) {
             this.state.pending = true;
-            this.api.updateUser(this.updatePasswordForm.value).subscribe(({user}) => {
+            this.api.setUser(this.updateForm.value).subscribe(({user}) => {
 
                 this.state.pending = false;
 
-                if(user)
+                if(user) {
                     this.notification.open({message: 'Mot de passe enregistré !', state: 'success', during: 3000});
+                    this.router.navigate(['/'], {replaceUrl: true});
+                }
             });
         }
     }

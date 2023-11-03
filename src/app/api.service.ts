@@ -1,25 +1,19 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { SupabaseClient, createClient, SignInWithPasswordCredentials, PostgrestError, AuthChangeEvent, Session, Subscription, UserAttributes } from '@supabase/supabase-js';
-import { Observable, Subject, from, map, of } from 'rxjs';
+import { Observable, Subject, from, map, of, shareReplay } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Database } from 'types/database';
-import { NotificationService } from './notification.service';
+import { Notification } from './notification/notification.module';
 
 type NullablePartial<T> = { [P in keyof T]?: T[P] | null };
 
-export type State = {
-    pending: boolean
-};
-export type Tag = {
-    icon: string
-};
+export type State = { pending: boolean };
+export type Tag = { icon: string };
 export type TagName = 'établissement' | 'salarié';
 export type Tags = Record<TagName, Tag>;
+export type Team = Database['public']['Tables']['teams']['Row'];
 export type Contact = Database['public']['Tables']['contacts']['Row'];
-
 export type SearchForm = {terms?: string, tags?: TagName[]};
-export type SearchFormControls = {terms: FormControl<string>, tags: FormControl<TagName[]>}
 
 @Injectable({
   providedIn: 'root'
@@ -27,19 +21,21 @@ export type SearchFormControls = {terms: FormControl<string>, tags: FormControl<
 export class ApiService implements OnDestroy {
 
     private supabase: SupabaseClient = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
-
+    
     private authState: Subject<{event: AuthChangeEvent, session: Session | null}> = new Subject();
-    private authStateSubscription: Subscription = this.supabase.auth.onAuthStateChange((event, session) => this.authState.next({event, session}))
-                                                      .data.subscription;
-
-    authStateChange: Observable<{event: AuthChangeEvent, session: Session | null}> = this.authState.asObservable();
+    private authStateSubscription: Subscription = this.supabase.auth.onAuthStateChange((event, session) => this.authState.next({event, session})).data.subscription;
+    readonly authStateChange: Observable<{event: AuthChangeEvent, session: Session | null}> = this.authState.asObservable().pipe(shareReplay());
 
     tags: Tags = {
         établissement: {icon: 'building'},
         salarié: {icon: 'user-check-2'}
     }
 
-    constructor(private readonly notification: NotificationService) {}
+    constructor(private readonly notification: Notification) {}
+
+    getSession() {
+        return this.wrap(this.supabase.auth.getSession());
+    }
 
     getContacts(search?: SearchForm) {
 
@@ -68,7 +64,20 @@ export class ApiService implements OnDestroy {
         if(search?.tags && search.tags.length > 0)
             query = query.contains('tags', search.tags);
 
-        return this.wrap<Contact[]>(query);
+        return this.wrap<Contact[]>(query.order('name'));
+    }
+
+    setContact(contact: Contact) {
+        const values = Object.fromEntries(Object.entries(contact).filter(([_, v]) => v));
+        return this.wrap(this.supabase.from('contacts').upsert(values).select());
+    }
+
+    deleteContact(id: string) {
+        return this.wrap(this.supabase.from('contacts').delete().eq('id', id));
+    }
+
+    getTeams() {
+        return this.wrap<Team[]>(this.supabase.from('teams').select());
     }
 
     signIn(credentials: SignInWithPasswordCredentials) {
@@ -79,7 +88,7 @@ export class ApiService implements OnDestroy {
         return this.wrap(this.supabase.auth.signOut());
     }
 
-    updateUser(attributes: UserAttributes) {
+    setUser(attributes: UserAttributes) {
         return this.wrap(this.supabase.auth.updateUser(attributes));
     }
 

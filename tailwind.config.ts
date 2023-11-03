@@ -9,7 +9,8 @@ export default {
   theme: {
     extend: {
         fontFamily: {
-            sans: ['"Noto Sans"', ...fontFamily.sans]
+            sans: ['"Noto Sans"', ...fontFamily.sans],
+            loubottin: ['"Russo One"']
         },
         colors: {
             loubottin: {

@@ -23,37 +23,47 @@
 
     button, [type=button], [type=reset], [type=submit] {
         
-        @apply py-2.5 px-5 font-semibold rounded-xl cursor-pointer transition-all text-white select-none
-                bg-transparent hover:bg-slate-700 active:bg-slate-800;
+        @apply relative py-2.5 px-5 font-semibold rounded-xl cursor-pointer transition-all text-white select-none
+                before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:rounded-xl before:bg-transparent before:-z-[1]
+                before:scale-95 before:origin-center before:transition-all
+                hover:before:bg-slate-800 hover:before:scale-100
+                active:before:scale-95;
 
         lucide-icon {
             @apply first:mr-1 last:ml-1 ease-in duration-150;
             transition-property: width, margin;
         }
 
-        &.button-icon {@apply p-0 w-10 h-10 text-center rounded-full flex-none;}
-        &.button-flat {@apply bg-slate-800 hover:bg-slate-700 active:bg-slate-800;}
-        &.button-warn {@apply text-red-400 hover:bg-red-500 hover:text-white active:bg-red-600;}
+        &.button-icon {@apply p-0 w-10 h-10 text-center rounded-full before:rounded-full flex-none;}
+        &.button-flat {@apply before:bg-slate-800;}
+        &.button-warn {@apply text-red-400 hover:before:bg-red-500 hover:text-white;}
 
         &.button-filter {
             &.active {
-                @apply bg-loubottin-500 shadow-lg shadow-loubottin-950;
+                @apply before:bg-loubottin-500 before:scale-100 active:before:scale-95 shadow-lg shadow-loubottin-950;
             }
         }
-
-        &.pending {
-            @apply cursor-default pointer-events-none text-opacity-25;
-
-            lucide-icon:not([name=loader]){@apply w-0 m-0;}
-            lucide-icon[name=loader] {@apply w-6;}
-        }
-
-        &:not(.pending) lucide-icon[name=loader] { @apply w-0 m-0; }
     }
 
     [type=text], [type=search], [type=email], [type=password] {
-        @apply py-2.5 px-5 rounded-xl bg-slate-800 transition-all outline outline-1 outline-slate-700 shadow-slate-950
-                focus:outline-2 focus:outline-loubottin-500 focus:shadow-loubottin-950 focus:caret-loubottin-500;
+        @apply py-2.5 px-5 rounded-xl bg-slate-800 transition-all outline outline-2 outline-slate-700 shadow-slate-950
+                focus:outline-loubottin-500 focus:shadow-loubottin-950 focus:caret-loubottin-500;
+    }
+
+    [type=checkbox] {
+        @apply relative h-5 w-5 mx-0.5 align-sub appearance-none rounded-md outline outline-2 -outline-offset-1 outline-slate-700 cursor-pointer 
+                after:content-[''] after:pointer-events-none after:absolute after:h-4 after:w-2 after:left-1.5 after:rotate-45 
+                after:border-solid after:border-2 after:border-l-0 after:border-t-0 after:rounded-br-sm after:border-white
+                after:scale-90 after:opacity-0 after:transition-all
+                checked:outline-loubottin-500 checked:bg-loubottin-500 checked:after:scale-100 checked:after:opacity-100;
+
+        & + label {
+            @apply inline-block select-none cursor-pointer pl-8 -ml-7 py-1 pr-1 rounded-lg bg-transparent transition-colors;
+        }
+
+        &:checked + label {
+            @apply bg-loubottin-500;
+        }
     }
 
     lucide-icon {
@@ -71,12 +81,30 @@
     }
 
     .contact {
-        @apply flex flex-col gap-2 items-start py-4 px-8 rounded-xl transition-all
-            outline outline-[14px] outline-slate-900;
+        @apply flex-grow flex flex-col gap-2 items-start py-4 px-8 rounded-xl transition-all 
+                w-full md:w-[calc(50%_-_1rem)] lg:w-[calc(33%_-_2rem)] xl:w-[calc(25%_-_3rem)]
+                outline outline-[14px] outline-slate-900;
     }
 }
 
 @layer utilities {
+
+    form.pending {
+        @apply cursor-default pointer-events-none select-none opacity-50;
+    }
+
+    form:not(.pending) button[type=submit],
+    button:not(.pending) {
+        lucide-icon[name=loader] { @apply w-0 m-0; }
+    }
+
+    form.pending button[type=submit],
+    button.pending {
+        @apply cursor-default pointer-events-none text-opacity-25;
+
+        lucide-icon:not([name=loader]){@apply w-0 m-0;}
+        lucide-icon[name=loader] {@apply w-6;}
+    }
 
     .animate-bg {
         @apply bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-no-repeat;
@@ -88,4 +116,8 @@
 @keyframes bg-animation {
     from{background-position: -100vw 0;}
     to{background-position: 100vw 0;}
+}
+
+.ng-invalid {
+    @apply outline-red-500 placeholder:text-red-300/50;
 }

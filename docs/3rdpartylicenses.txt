@@ -13,6 +13,9 @@ MIT
 @angular/platform-browser
 MIT
 
+@angular/router
+MIT
+
 @supabase/functions-js
 MIT
 MIT License

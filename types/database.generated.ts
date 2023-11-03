@@ -53,6 +53,49 @@ export interface Database {
           }
         ]
       }
+      members: {
+        Row: {
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "members_team_id_fkey"
+            columns: ["team_id"]
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "members_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      teams: {
+        Row: {
+          id: string
+          role: string
+        }
+        Insert: {
+          id?: string
+          role: string
+        }
+        Update: {
+          id?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
