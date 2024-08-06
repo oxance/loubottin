@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+    body { @apply antialiased dark:bg-slate-900 dark:text-white; }
+
+    h1 { @apply inline-block text-2xl font-bold; }
+    h2 { @apply inline-block font-bold; }
+    
+    a { @apply text-sm underline; }
+
+    button { 
+        @apply button;
+    }
+
+    input[type=tel], 
+    input[type=text], 
+    input[type=email], 
+    input[type=search],
+    input[type=password] { 
+        @apply text-sm px-3 py-2.5 rounded-lg outline outline-2 outline-transparent bg-slate-700 transition-all
+            focus:outline-primary-700
+            placeholder:text-slate-400;
+
+        &.error { @apply outline-red-500 text-red-500 placeholder:text-red-300; }
+    }
+}
+
+@layer components {
+
+    .button {
+        @apply relative cursor-pointer inline-flex items-center gap-1 text-sm font-semibold px-3 py-2.5 rounded-lg no-underline transition-all
+            text-white bg-slate-950
+            hover:bg-slate-900 active:scale-95
+            disabled:pointer-events-none
+            data-[state=open]:scale-95;
+
+        &.error { 
+            @apply bg-red-500 hover:text-white hover:bg-red-600 
+                data-[state=open]:bg-red-600 data-[state=open]:text-white;
+        }
+
+        &.success {
+            @apply bg-primary-500 hover:text-white hover:bg-primary-600;
+        }
+    }
+
+    .button-ghost {
+        @apply button bg-transparent hover:bg-slate-500/20;
+
+        &.error { @apply bg-transparent text-red-500; }
+    }
+}
+
+@layer utilities {
+
+    .text-oultine {
+        @apply absolute left-0 top-0 -z-0;
+        -webkit-text-stroke: .25em currentColor;
+    }
+
+    .lucide {
+        @apply inline-block;
+    }
+
+    .animate-loader {
+        path {
+            @apply animate-[loader_800ms_linear_infinite];
+    
+            stroke-opacity: 0;
+
+            &:nth-child(1) { animation-delay: 100ms; }
+            &:nth-child(2) { animation-delay: 200ms; }
+            &:nth-child(3) { animation-delay: 300ms; }
+            &:nth-child(4) { animation-delay: 400ms; }
+            &:nth-child(5) { animation-delay: 500ms; }
+            &:nth-child(6) { animation-delay: 600ms; }
+            &:nth-child(7) { animation-delay: 700ms; }
+            &:nth-child(8) { animation-delay: 800ms; }
+        }
+    }
+}
+
+@keyframes loader {
+    from { stroke-opacity: 1; }
+    to { stroke-opacity: 0; }
+}
