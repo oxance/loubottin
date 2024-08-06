@@ -11,7 +11,7 @@ const DrawerClose = DrawerPrimitive.Close
 
 const DrawerOverlay = forwardRef<ElementRef<typeof DrawerPrimitive.Overlay>, ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>>(
     ({ className, ...props }, ref) => (
-    <DrawerPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-50 bg-slate-950/75", className)} {...props} />
+    <DrawerPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-50 bg-slate-950/85", className)} {...props} />
 ))
 
 const DrawerContent = forwardRef<ElementRef<typeof DrawerPrimitive.Content>, ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>>(

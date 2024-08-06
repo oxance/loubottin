@@ -9,7 +9,7 @@ import logo from './assets/logo.png';
 export default function Auth() {
 
     const [ pending, setPending ] = useState(false);
-    const { supabase, session } = useSupabase();
+    const { supabase, session, ready } = useSupabase();
 
     const signIn: FormEventHandler<HTMLFormElement> = async event => {
         event.preventDefault();
@@ -30,7 +30,7 @@ export default function Auth() {
     }
 
     return <>
-        <Dialog dismissible={false} open={!session}>
+        <Dialog dismissible={false} open={ready && !session}>
             <DialogContent className="flex flex-col items-center">
                 <img src={logo} loading="lazy" className="w-60 rounded-full" />
                 <div className="relative whitespace-nowrap">

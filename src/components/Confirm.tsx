@@ -1,21 +1,18 @@
 import { ComponentPropsWithoutRef, ElementRef, forwardRef, MouseEventHandler } from "react"
 import { cn } from "../utils"
-import { Check, X } from "lucide-react"
+import { Check, Loader, X } from "lucide-react"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 
 export const Confirm = PopoverPrimitive.Root
 export const ConfirmTrigger = PopoverPrimitive.Trigger
 
-export const ConfirmContent = forwardRef<
-    ElementRef<typeof PopoverPrimitive.Content>,
-    ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
-        classNames?: {
-            arrow?: string
-        },
-        onConfirm: MouseEventHandler<HTMLButtonElement>
-    }
->(({ className, classNames, children, onConfirm, ...props }, ref) => {
-    return <PopoverPrimitive.Portal>
+export const ConfirmContent = forwardRef<ElementRef<typeof PopoverPrimitive.Content>, ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
+    classNames?: {
+        arrow?: string
+    },
+    isLoading?: boolean,
+    onConfirm: MouseEventHandler<HTMLButtonElement>,
+}>(({ className, classNames, children, onConfirm, isLoading, ...props }, ref) => <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content side="top"
             ref={ref}
             className={cn(
@@ -25,18 +22,19 @@ export const ConfirmContent = forwardRef<
                 "data-[side=top]:slide-in-from-bottom-2",
                 className
             )}
-            {...props}
-        >
+            {...props}>
             <div className="flex flex-col">
                 {children}
                 <div className="flex gap-4 self-end mt-4 -mb-2 -mr-2">
                     <PopoverPrimitive.Close asChild>
                         <button className="button-ghost"><X /> Non</button>
                     </PopoverPrimitive.Close>
-                    <button className="success" onClick={onConfirm}><Check /> Oui</button>
+                    <button className="success overflow-hidden" onClick={onConfirm}>
+                        {isLoading ? <Loader className={`animate-loader`} /> : <Check />} Oui
+                    </button>
                 </div>
             </div>
             <PopoverPrimitive.Arrow className={cn(classNames?.arrow)} />
         </PopoverPrimitive.Content>
     </PopoverPrimitive.Portal>
-})
+)

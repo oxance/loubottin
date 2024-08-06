@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Database } from "./supabase.types";
-import { useSupabase } from "./Supabase";
-import { AtSign, Edit, MapPin, Phone, Plus, Save, Smartphone, Trash2, UserPlus2, UserRoundSearch } from "lucide-react";
+import { useHandler, useSupabase } from "./Supabase";
+import { AtSign, Edit, Loader, MapPin, Phone, Plus, Save, Smartphone, Trash2, UserPlus2, UserRoundSearch } from "lucide-react";
 import { Search } from "./App";
 import { toast } from "sonner";
 import { contactsTags, Tag } from './tags';
@@ -44,53 +44,46 @@ export default function Contacts({search}: {search?: Search}) {
         }
     });
 
-    const { handleSubmit, register, reset, watch, formState: {errors}} = useForm<ContactsUpdate>();
-    const isUpdating = watch('id');
+    const { handleSubmit, register, reset, formState: {errors}} = useForm<ContactsUpdate>();
 
     const [ currentContact, setCurrentContact ] = useState<ContactsUpdate>();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const openEdit = ({created_at, updated_by, ...contact}: ContactsUpdate) => {
-        setCurrentContact(contact);
         reset(() => contact);
+        setCurrentContact(contact);
     }
 
     const cancelEdit = () => {
-        reset(() => ({}));
         setCurrentContact(undefined);
+        reset(() => ({}));
     }
 
-    const onUpdate: SubmitHandler<ContactsUpdate> = async contact => {
-        const values = Object.fromEntries(Object.entries(contact).filter(([, v]) => v));
-        
-        const {error} = await supabase.from('contacts').upsert(values).select();
-
-        if(error)
-            toast.error(error.message, {id: 'set-contact-error'});
-        else
+    const {action: update, isLoading: isUpdating} = useHandler<SubmitHandler<ContactsUpdate>>(
+        async contact => {
+            const values = Object.fromEntries(Object.entries(contact).filter(([, v]) => v));
+            await supabase.from('contacts').upsert(values).select().throwOnError();
+            await mutate();
             setCurrentContact(undefined);
-        
-        mutate();
-    }
+        },
+        ({message}) => toast.error(message, {id: 'set-contact-error'})
+    );
 
-    const remove = async (id?: string) => {
-
-        const {error} = await supabase.from('contacts').delete().eq('id', id!);
-
-        if(error)
-            toast.error(error.message, {id: 'set-contact-error'});
-        else
+    const {action: remove, isLoading: isRemoving} = useHandler(
+        async (id?: string) => {
+            await supabase.from('contacts').delete().eq('id', id!).throwOnError();
+            await mutate();
             setCurrentContact(undefined);
-
-        mutate();
-    }
+        },
+        ({message}) => toast.error(message, {id: 'set-contact-error'})
+    );
 
     return <div className="flex flex-wrap gap-4">
         {contacts?.length === 0 && !isValidatingContacts && <div className="flex-1 flex flex-col items-center my-12 min-w-full text-slate-500">
             <UserRoundSearch className="size-8" />
             Pas de résultats, essayez d'autres critères de recherche...
         </div>}
-        {roles.includes('admin') && <div onClick={() => openEdit({})} className="flex-auto w-60 p-4 flex flex-col items-center justify-center cursor-pointer transition-all
+        {roles.admin && <div onClick={() => openEdit({})} className="flex-auto w-60 p-4 flex flex-col items-center justify-center cursor-pointer transition-all
             bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg text-slate-600
             hover:text-primary-500 hover:border-primary-500">
             <UserPlus2 className="size-8" />
@@ -107,7 +100,7 @@ export default function Contacts({search}: {search?: Search}) {
                 className={`relative group flex-auto w-60 p-4 bg-slate-800 rounded-lg ${isValidatingContacts ? 'animate-pulse' : ''}`}>
                 <div className="font-semibold">
                     {contact.name}
-                    {roles.includes('admin') && 
+                    {roles.admin && 
                         <button className="absolute top-3 right-3 button-ghost -mt-2 -mr-2 self-start text-slate-500 hidden group-hover:block animate-in fade-in" 
                             onClick={() => openEdit(contact)}><Edit /></button>}
                 </div>
@@ -125,10 +118,10 @@ export default function Contacts({search}: {search?: Search}) {
                 </div>
             </div>)
         }
-        {roles.includes('admin') && <Dialog open={!!currentContact} onOpenChange={open => !open && cancelEdit() }>
+        {roles.admin && <Dialog open={!!currentContact} onOpenChange={open => !open && cancelEdit() }>
             <DialogContent>
-                <DialogTitle>{isUpdating ? 'Mettre à jour' :  'Ajouter'} {currentContact?.name}</DialogTitle>
-                <form onSubmit={handleSubmit(onUpdate)} className="flex flex-col gap-4 w-full">
+                <DialogTitle>{currentContact?.id ? `Mettre à jour ${currentContact?.name}` :  'Ajouter un nouveau contact'}</DialogTitle>
+                <form onSubmit={handleSubmit(update)} className="flex flex-col gap-4 w-full">
                     <div className="flex gap-2">
                         {Object.entries(contactsTags)?.map(([tagName, {icon: Icon, className}]) => {
                             return <Chips key={tagName} value={tagName} className={className} {...register("tags")}><Icon /> {tagName}</Chips>
@@ -149,10 +142,9 @@ export default function Contacts({search}: {search?: Search}) {
                             <ConfirmTrigger asChild>
                                 <button type="button" className="button-ghost error"><Trash2 /> Supprimer</button>
                             </ConfirmTrigger>
-                            <ConfirmContent onConfirm={() => remove(currentContact.id)} className="bg-slate-800 border-2 border-red-500" 
-                                classNames={{
-                                    arrow: "fill-red-500 w-4 h-2"
-                                }}>
+                            <ConfirmContent onConfirm={() => remove(currentContact.id)} isLoading={isRemoving}
+                                className="bg-red-950/50 backdrop-blur-xl border border-red-500" 
+                                classNames={{arrow: "fill-red-500 w-4 h-2"}}>
                                 <div className="flex items-center gap-2 text-red-500 font-semibold">
                                     Etes vous sur de vouloir supprimer {currentContact.name} ?
                                 </div>
@@ -163,8 +155,9 @@ export default function Contacts({search}: {search?: Search}) {
                             <DialogClose asChild>
                                 <button type="button" className="button-ghost" >Annuler</button>
                             </DialogClose>
-                            <button type="submit" className="success">
-                                {isUpdating ? <><Save /> Enregistrer</> : <><Plus /> Ajouter</>}
+                            <button type="submit" className="success overflow-hidden" disabled={isUpdating}>
+                                {isUpdating ? <Loader className={`animate-loader`} /> : currentContact?.id ? <Save /> : <Plus />}
+                                {currentContact?.id ? " Enregistrer" : " Ajouter"}
                             </button>
                         </div>
                     </DialogFooter>
