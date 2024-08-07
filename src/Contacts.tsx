@@ -59,7 +59,7 @@ export default function Contacts({search}: {search?: Search}) {
         reset(() => ({}));
     }
 
-    const {action: update, isLoading: isUpdating} = useHandler<SubmitHandler<ContactsUpdate>>(
+    const [update, isUpdating] = useHandler<SubmitHandler<ContactsUpdate>>(
         async contact => {
             const values = Object.fromEntries(Object.entries(contact).filter(([, v]) => v));
             await supabase.from('contacts').upsert(values).select().throwOnError();
@@ -69,7 +69,7 @@ export default function Contacts({search}: {search?: Search}) {
         ({message}) => toast.error(message, {id: 'set-contact-error'})
     );
 
-    const {action: remove, isLoading: isRemoving} = useHandler(
+    const [remove, isRemoving] = useHandler(
         async (id?: string) => {
             await supabase.from('contacts').delete().eq('id', id!).throwOnError();
             await mutate();
