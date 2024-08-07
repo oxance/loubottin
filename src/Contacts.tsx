@@ -31,7 +31,7 @@ export default function Contacts({search}: {search?: Search}) {
         const {data, error} = await query.order('name');
 
         if(error)
-            toast(error.message, {id: 'search-error'});
+            toast.error(error.message, {id: 'search-error'});
 
         return data;
     }, {
